@@ -104,6 +104,30 @@ tcp="Source Port:16,Destination Port:16,Sequence Number:32,\
 Acknowledgment Number:32,Offset:4,Res.:4,Flags:8,Window:16,Checksum:16,\
 Urgent Pointer:16,Options:24,Padding:8"
 
+#   +-------+-------+---------------------+---------------------+
+# |Kind=8 |  10   |   TS Value (TSval)  |TS Echo Reply (TSecr)|
+# +-------+-------+---------------------+---------------------+
+#     1       1              4                     4
+tcp_timestamp="Kind=8:8,Length=10:8,TSval:32,TSecr=32"
+
+tcp_mptcp=""
+
+#   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#  +---------------+---------------+-------+-------+---------------+
+#  |     Kind      |    Length     |Subtype|Version|A|B|C|D|E|F|G|H|
+#  +---------------+---------------+-------+-------+---------------+
+#  |                   Option Sender's Key (64 bits)               |
+#  |                                                               |
+#  |                                                               |
+#  +---------------------------------------------------------------+
+#  |                  Option Receiver's Key (64 bits)              |
+#  |                     (if option Length == 20)                  |
+#  |                                                               |
+#  +---------------------------------------------------------------+
+
+mptcp_syn="Kind:8,Length:8,Subtype:4,Version:4,A:1,B:1,C:1,E:1,F:1,G:1,A:1,\
+        sender's Key:64,Receiver's key 9if Option length == 20):64"
+# mptcp-dss=""
 
 #     0                   1                   2                   3
 #     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
