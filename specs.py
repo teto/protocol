@@ -108,7 +108,7 @@ Urgent Pointer:16,Options:24,Padding:8"
 # |Kind=8 |  10   |   TS Value (TSval)  |TS Echo Reply (TSecr)|
 # +-------+-------+---------------------+---------------------+
 #     1       1              4                     4
-tcp_timestamp="Kind=8:8,Length=10:8,TSval:32,TSecr=32"
+tcp_timestamp="Kind=8:8,Length=10:8,TSval:32,TSecr:32"
 
 tcp_mptcp=""
 
@@ -125,9 +125,24 @@ tcp_mptcp=""
 #  |                                                               |
 #  +---------------------------------------------------------------+
 
-mptcp_syn="Kind:8,Length:8,Subtype:4,Version:4,A:1,B:1,C:1,E:1,F:1,G:1,A:1,\
-        sender's Key:64,Receiver's key 9if Option length == 20):64"
-# mptcp-dss=""
+mptcp_syn="Kind:8,Length:8,Subtype:4,Version:4,A:1,B:1,C:1,E:1,F:1,G:1,H:1,\
+        Sender's Key:64,Receiver's key\
+        (if Option length == 20):64"
+
+                      # 1                   2                   3
+  # 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ # +---------------+---------------+-------+----------------------+
+ # |     Kind      |    Length     |Subtype| (reserved) |F|m|M|a|A|
+ # +---------------+---------------+-------+----------------------+
+ # |           Data ACK (4 or 8 octets, depending on flags)       |
+ # +--------------------------------------------------------------+
+ # |   Data sequence number (4 or 8 octets, depending on flags)   |
+ # +--------------------------------------------------------------+
+ # |              Subflow Sequence Number (4 octets)              |
+ # +-------------------------------+------------------------------+
+ # |  Data-Level Length (2 octets) |      Checksum (2 octets)     |
+ # +-------------------------------+------------------------------+
+mptcp-dss=""
 
 #     0                   1                   2                   3
 #     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -750,6 +765,7 @@ protocols={"ethernet":ethernet,
            "8021q":dot1q,
            "dot1q":dot1q,
            "tcp":tcp,
+           "tcp-timestamp":tcp_timestamp,
            "udp":udp,
            "ip":ip,
            "ipv6":ipv6,
@@ -773,6 +789,11 @@ protocols={"ethernet":ethernet,
            "icmpv6-nsol":icmpv6_nsol,
            "icmpv6-nadv":icmpv6_nadv,
            "icmpv6-redirect":icmpv6_redirect,
+           "mptcp":tcp_mptcp,
+           "mptcp-syn":mptcp_syn,
+           # "mptcp-ack":mptcp_syn,
+           # "mptcp-synack":mptcp_syn,
+           # "mptcp-dss":mptcp_dss,
            "modbus_tcp":modbus_tcp,
            "profinet_rt":profinet_rt,
            "tsap":tsap,
