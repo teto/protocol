@@ -109,6 +109,9 @@ Urgent Pointer:16,Options:24,Padding:8"
 # +-------+-------+---------------------+---------------------+
 #     1       1              4                     4
 tcp_timestamp="Kind=8:8,Length=10:8,TSval:32,TSecr:32"
+tcp_timestamp_extended="Kind=8:8,Length=10:8,TSval:32,Exo:1,32"
+tcp_timestamp_extended_ecr="EXO:1,Version:2,MSK:5,value:24"
+
 
 tcp_mptcp=""
 
@@ -142,7 +145,7 @@ mptcp_syn="Kind:8,Length:8,Subtype:4,Version:4,A:1,B:1,C:1,E:1,F:1,G:1,H:1,\
  # +-------------------------------+------------------------------+
  # |  Data-Level Length (2 octets) |      Checksum (2 octets)     |
  # +-------------------------------+------------------------------+
-mptcp-dss=""
+mptcp_dss=""
 
 #     0                   1                   2                   3
 #     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -766,6 +769,8 @@ protocols={"ethernet":ethernet,
            "dot1q":dot1q,
            "tcp":tcp,
            "tcp-timestamp":tcp_timestamp,
+           "tcp-timestamp-ext":tcp_timestamp_extended,
+           "tsecr":tcp_timestamp_extended_ecr,
            "udp":udp,
            "ip":ip,
            "ipv6":ipv6,
