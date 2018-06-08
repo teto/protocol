@@ -113,7 +113,20 @@ tcp_timestamp_extended="Kind=8:8,Length=10:8,TSval:32,Exo:1,32"
 tcp_timestamp_extended_ecr="EXO:1,Version:2,MSK:5,value:24"
 
 
-tcp_mptcp=""
+# tcp_mptcp=""
+
+#   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#  +---------------+---------------+-------+-------+---------------+
+#  |     Kind      |    Length     |Subtype|Version|A|B|C|D|E|F|G|H|
+#  +---------------+---------------+-------+-------+---------------+
+#  |                   Option Sender's Key (64 bits)               |
+#  |                                                               |
+#  |                                                               |
+#  +---------------------------------------------------------------+
+
+mptcp_first_two_syns="Kind:8,Length:8,Subtype (0x1):4,Version:4,A:1,B:1,C:1,E:1,F:1,G:1,H:1,\
+        Sender's Key:64,Receiver's key\
+        (if Option length == 20):64"
 
 #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 #  +---------------+---------------+-------+-------+---------------+
@@ -128,9 +141,62 @@ tcp_mptcp=""
 #  |                                                               |
 #  +---------------------------------------------------------------+
 
-mptcp_syn="Kind:8,Length:8,Subtype:4,Version:4,A:1,B:1,C:1,E:1,F:1,G:1,H:1,\
+
+mptcp_syn3="Kind:8,Length:8,Subtype:4,Version:4,A:1,B:1,C:1,E:1,F:1,G:1,H:1,\
         Sender's Key:64,Receiver's key\
         (if Option length == 20):64"
+
+                    # 1                   2                   3
+# 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+# +---------------+---------------+-------+-----+-+---------------+
+# |     Kind      |  Length = 12  |Subtype|     |B|   Address ID  |
+# +---------------+---------------+-------+-----+-+---------------+
+# |                   Receiver's Token (32 bits)                  |
+# +---------------------------------------------------------------+
+# |                Sender's Random Number (32 bits)               |
+# +---------------------------------------------------------------+
+mptcp_join1="Kind:8,Length:12,Subtype (0x2):4,Flags:4,Address ID:8,\
+        Receiver's token:32,Sender's nonce:32"
+        
+                     # 1                   2                   3
+ # 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+# +---------------+---------------+-------+-----+-+---------------+
+# |     Kind      |  Length = 16  |Subtype|     |B|   Address ID  |
+# +---------------+---------------+-------+-----+-+---------------+
+# |                                                               |
+# |                Sender's Truncated HMAC (64 bits)              |
+# |                                                               |
+# +---------------------------------------------------------------+
+# |                Sender's Random Number (32 bits)               |
+# +---------------------------------------------------------------+
+
+mptcp_join2="Kind:8,Length:16,Subtype (0x2):4,Flags:4,Address ID:8,\
+        Sender's truncated HMAC:64,Sender's nonce:32"
+
+                     # 1                   2                   3
+ # 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+# +---------------+---------------+-------+-----------------------+
+# |     Kind      |  Length = 24  |Subtype|      (reserved)       |
+# +---------------+---------------+-------+-----------------------+
+# |                                                               |
+# |                                                               |
+# |                   Sender's HMAC (160 bits)                    |
+# |                                                               |
+# |                                                               |
+# +---------------------------------------------------------------+
+mptcp_join3="Kind:8,Length:16,Subtype (0x2):4,Reserved:12,
+        Sender's HMAC:160"
+
+  # enum SubType
+  # {
+  #   MP_CAPABLE,
+  #   MP_JOIN,
+  #   MP_DSS,
+  #   MP_ADD_ADDR,
+  #   MP_REMOVE_ADDR,
+  #   MP_PRIO,
+  #   MP_FAIL,
+  #   MP_FASTCLOSE,
 
                       # 1                   2                   3
   # 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -145,7 +211,14 @@ mptcp_syn="Kind:8,Length:8,Subtype:4,Version:4,A:1,B:1,C:1,E:1,F:1,G:1,H:1,\
  # +-------------------------------+------------------------------+
  # |  Data-Level Length (2 octets) |      Checksum (2 octets)     |
  # +-------------------------------+------------------------------+
-mptcp_dss=""
+# todo use a function ?
+# def gen_dss(with_dack,short_dack):
+#     res = "Kind:8,Length:16,Subtype (0x3):4,Flags:12,\
+#         Data ack:{A},Data Sequence Number:{a}
+#         "
+#     return res
+# mptcp_dss=gen_dss()
+        
 
 #     0                   1                   2                   3
 #     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -794,10 +867,13 @@ protocols={"ethernet":ethernet,
            "icmpv6-nsol":icmpv6_nsol,
            "icmpv6-nadv":icmpv6_nadv,
            "icmpv6-redirect":icmpv6_redirect,
-           "mptcp":tcp_mptcp,
-           "mptcp-syn":mptcp_syn,
-           # "mptcp-ack":mptcp_syn,
-           # "mptcp-synack":mptcp_syn,
+           "mptcp-syn1":mptcp_first_two_syns,
+           "mptcp-syn2":mptcp_first_two_syns,
+           "mptcp-syn3":mptcp_syn3,
+           "mptcp-join1":mptcp_join1,
+           "mptcp-join2":mptcp_join2,
+           "mptcp-join3":mptcp_join3,
+           # TODO generate more DSS
            # "mptcp-dss":mptcp_dss,
            "modbus_tcp":modbus_tcp,
            "profinet_rt":profinet_rt,
